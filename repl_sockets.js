@@ -9,9 +9,7 @@
 const path = require('path');
 const net  = require('net');
 
-const SOCKET_FILE_PATH = path.join(process.cwd(), 'tmp', 'repl.sock');
-
-const client = function () {
+const client = function (SOCKET_FILE_PATH) {
 	
 	const socket = net.connect(SOCKET_FILE_PATH);
 	
@@ -50,7 +48,7 @@ const client = function () {
 	
 };
 
-const server = function (opts, cb) {
+const server = function (SOCKET_FILE_PATH, opts, cb) {
 	const fs   = require('fs');
 	const repl = require('repl');
 	if (fs.existsSync(SOCKET_FILE_PATH)) {
