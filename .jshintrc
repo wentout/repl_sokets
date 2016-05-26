@@ -1,0 +1,33 @@
+{
+	"predef"        : [
+		"require",
+		"module",
+		"console"
+	],
+	"esnext"        : true,
+	"curly"         : true,
+	"devel"         : true,
+	"debug"         : true,
+	"forin"         : true,
+	"funcscope"     : true,
+	"futurehostile" : true,
+	"latedef"       : "nofunc",
+	"loopfunc"      : true,
+	"maxdepth"      : 7,
+	"module"        : true,
+	"newcap"        : true,
+	"noarg"         : true,
+	"noempty"       : true,
+	"node"          : true,
+	"nonbsp"        : true,
+	"notypeof"      : true,
+	"strict"        : true,
+	"undef"         : true,
+	"unused"        : true,
+	
+	"eqeqeq"        : false,
+	"plusplus"      : false,
+	
+	"-W041"         : false,
+	"-W032"         : false
+}
