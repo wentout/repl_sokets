@@ -5,8 +5,6 @@
 // https://gist.github.com/jakwings/7772580
 // https://gist.github.com/TooTallNate/2209310
 
-
-const path = require('path');
 const net  = require('net');
 
 const client = (SOCKET_FILE_PATH) => {
@@ -105,9 +103,9 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			
 			const saveHistoryAndClose = saveHistory.bind(null, null, true);
 			process
-				.on('SIGTERM'          , () => { saveHistoryAndClose })
-				.on('SIGINT'           , () => { saveHistoryAndClose })
-				.on('uncaughtException', () => { saveHistoryAndClose });
+				.on('SIGTERM'          , saveHistoryAndClose)
+				.on('SIGINT'           , saveHistoryAndClose)
+				.on('uncaughtException', saveHistoryAndClose);
 			
 			r.rli.addListener('line', (line) => {
 				if (line !== '.hclear') {
@@ -120,14 +118,16 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				action : () => {
 					r.rli.history = [];
 					r.rli.historyIndex = -1;
-					saveHistory && saveHistory(null, true, true);
+					saveHistory(null, true, true);
 					r.displayPrompt();
 				}
 			});
 		}
 		
 		r.on('exit', () => {
-			saveHistory && saveHistory();
+			if (typeof saveHistory == 'function') {
+				saveHistory(null, true);
+			}
 			socket.end();
 		});
 		
