@@ -59,8 +59,8 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			prompt    : process.pid + ' repl > ',
 			input     : socket,
 			output    : socket,
-			terminal  : true,
-			useGlobal : false
+			terminal  : !opts.terminal,
+			useGlobal : !!opts.useGlobal
 		});
 		
 		if (historyPath) {
