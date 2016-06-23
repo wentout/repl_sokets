@@ -36,8 +36,10 @@ console.log('The REPL example server is Running!');
 console.log('Run: node example_client');
 
 const SOCKET_FILE_PATH = require('path').join(process.cwd(), 'repl.sock');
-require('./repl_sockets').server(SOCKET_FILE_PATH, {
-	context
+require('./repl_sockets')
+.server(SOCKET_FILE_PATH, {
+	context,
+	historyPath : './repl_history.dat'
 }, (replSocket) => {
 	context.it = replSocket;
 });
