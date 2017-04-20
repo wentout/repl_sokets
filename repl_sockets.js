@@ -65,18 +65,20 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				
 		r.trueConsoleLog = null;
 		
-		var consoleInit = () => {
+		r.log = function () {
+			const args = Array.prototype.slice.call(arguments);
+			args.forEach((arg) => {
+				socket.write.call(socket, util.inspect(arg));
+				socket.write.call(socket, '\n');
+			});
+			// consoleLog.apply(console, args);
+		};
+		
+		const consoleInit = () => {
 			const consoleLog = console.log;
 			r.trueConsoleLog = consoleLog;
 			const util = require('util');
-			console.log = function () {
-				const args = Array.prototype.slice.call(arguments);
-				args.forEach((arg) => {
-					socket.write.call(socket, util.inspect(arg));
-					socket.write.call(socket, '\n');
-				});
-				// consoleLog.apply(console, args);
-			};
+			console.log = r.log;
 		};
 		
 		if (historyPath) {
