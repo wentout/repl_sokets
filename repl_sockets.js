@@ -77,7 +77,6 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				});
 				// consoleLog.apply(console, args);
 			};
-			consoleInit = null;
 		};
 		
 		if (historyPath) {
@@ -142,7 +141,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 		}
 		
 		r.rli.addListener('line', (line) => {
-			if (typeof consoleInit == 'function') {
+			if (! r.trueConsoleLog) {
 				consoleInit();
 			}
 		});
@@ -153,6 +152,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			}
 			if (r.trueConsoleLog) {
 				console.log = r.trueConsoleLog;
+				r.trueConsoleLog = null;
 			}
 			socket.end();
 		});
