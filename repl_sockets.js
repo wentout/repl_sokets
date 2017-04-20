@@ -53,7 +53,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 		fs.unlinkSync(SOCKET_FILE_PATH);
 	}
 	const historyPath = opts.historyPath;
-	net.createServer((socket) => {
+	const replServer = net.createServer((socket) => {
 		
 		const r = repl.start({
 			prompt    : process.pid + ' repl > ',
@@ -62,6 +62,23 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			terminal  : !opts.terminal,
 			useGlobal : !!opts.useGlobal
 		});
+				
+		r.trueConsoleLog = null;
+		
+		var consoleInit = () => {
+			const consoleLog = console.log;
+			r.trueConsoleLog = consoleLog;
+			const util = require('util');
+			console.log = function () {
+				const args = Array.prototype.slice.call(arguments);
+				args.forEach((arg) => {
+					socket.write.call(socket, util.inspect(arg));
+					socket.write.call(socket, '\n');
+				});
+				// consoleLog.apply(console, args);
+			};
+			consoleInit = null;
+		};
 		
 		if (historyPath) {
 			
@@ -124,9 +141,18 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			});
 		}
 		
+		r.rli.addListener('line', (line) => {
+			if (typeof consoleInit == 'function') {
+				consoleInit();
+			}
+		});
+
 		r.on('exit', () => {
 			if (typeof saveHistory == 'function') {
 				saveHistory(null, true);
+			}
+			if (r.trueConsoleLog) {
+				console.log = r.trueConsoleLog;
 			}
 			socket.end();
 		});
@@ -151,11 +177,10 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			cb(socket, r);
 		}
 		
-	}).listen(SOCKET_FILE_PATH);
+	});
+	replServer.listen(SOCKET_FILE_PATH);
 	
 };
-
-
 
 module.exports = {
 	client : client,
