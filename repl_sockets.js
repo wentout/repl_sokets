@@ -65,6 +65,8 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				
 		r.trueConsoleLog = null;
 		
+		const util = require('util');
+		
 		r.log = function () {
 			const args = Array.prototype.slice.call(arguments);
 			args.forEach((arg) => {
@@ -77,7 +79,6 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 		const consoleInit = () => {
 			const consoleLog = console.log;
 			r.trueConsoleLog = consoleLog;
-			const util = require('util');
 			console.log = r.log;
 		};
 		
@@ -142,7 +143,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			});
 		}
 		
-		r.rli.addListener('line', (line) => {
+		r.rli.addListener('line', () => {
 			if (! r.trueConsoleLog) {
 				consoleInit();
 			}
