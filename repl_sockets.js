@@ -93,7 +93,8 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				// <<< repl will notify us
 				// so we will not use this
 				if (code) {
-					fs.write(fd, code + '\n');
+					// DEP0013 rid
+					fs.write(fd, code + '\n', () => {});
 				}
 				if (toCloseFd || clear) {
 					fs.closeSync(fd);
