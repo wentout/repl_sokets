@@ -144,12 +144,15 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			});
 		}
 		
-		r.rli.addListener('line', () => {
+		const checkAndInitConsole = () => {
 			if (! r.trueConsoleLog) {
 				consoleInit();
 			}
-		});
-
+		};
+		
+		socket.on('data', checkAndInitConsole);
+		r.rli.addListener('line', checkAndInitConsole);
+		
 		r.on('exit', () => {
 			if (typeof saveHistory == 'function') {
 				saveHistory(null, true);
