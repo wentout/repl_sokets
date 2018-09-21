@@ -13,17 +13,6 @@ const client = (SOCKET_FILE_PATH) => {
 	
 	process.stdin.pipe(socket);
 	
-	/// For backwards compatibility with Node program older than v0.10,
-	/// readable streams switch into "flowing mode" when a 'data' event handler
-	/// is added, or when the pause() or resume() methods are called.
-	process.stdin.on('data', (buffer) => {
-		if (buffer.length === 1 && buffer[0] === 0x04) { // EOT
-			process.stdin.emit('end'); // process.stdin will be destroyed
-			process.stdin.setRawMode(false);
-			process.stdin.pause(); // stop emitting 'data' event
-		}
-	});
-	
 	/// this event won't be fired if REPL is exited by '.exit' command
 	process.stdin.on('end', () => {
 		console.log('.exit');
