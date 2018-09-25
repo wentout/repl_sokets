@@ -15,19 +15,19 @@ const client = (SOCKET_FILE_PATH) => {
 	
 	/// this event won't be fired if REPL is exited by '.exit' command
 	process.stdin.on('end', () => {
-		console.log('.exit');
+		process._rawDebug('.exit');
 		socket.destroy();
 	});
 	
 	socket.pipe(process.stdout);
 	
 	socket.on('connect', () => {
-		console.log('Connected.');
+		process._rawDebug('Connected.');
 		//process.stdin.resume();  // already in flowing mode
 		process.stdin.setRawMode(true);
 	});
 	const close = () => {
-		console.log('Disconnected.');
+		process._rawDebug('Disconnected.');
 		socket.removeListener('close', close);
 		process.exit(0);
 	};
@@ -62,13 +62,12 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				socket.write.call(socket, util.inspect(arg));
 				socket.write.call(socket, '\n');
 			});
-			// consoleLog.apply(console, args);
 		};
 		
 		const consoleInit = () => {
-			const consoleLog = console.log;
+			const consoleLog = process._rawDebug;
 			r.trueConsoleLog = consoleLog;
-			console.log = r.log;
+			process._rawDebug = r.log;
 		};
 		
 		if (historyPath) {
@@ -86,7 +85,10 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 					fs.writeSync(fd, code + '\n', () => {});
 				}
 				if (toCloseFd || clear) {
-					fs.closeSync(fd);
+					try {
+						fs.closeSync(fd);
+					// eslint-disable-next-line
+					} catch (err) {}
 				}
 				if (clear) {
 					fs.unlinkSync(historyPath);
@@ -108,6 +110,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				r.rli.history.shift();
 				// will be incremented before pop
 				r.rli.historyIndex = -1;
+			// eslint-disable-next-line
 			} catch (accessError) {}
 			
 			const saveHistoryAndClose = saveHistory.bind(null, null, true);
@@ -147,7 +150,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				saveHistory(null, true);
 			}
 			if (r.trueConsoleLog) {
-				console.log = r.trueConsoleLog;
+				process._rawDebug = r.trueConsoleLog;
 				r.trueConsoleLog = null;
 			}
 			socket.end();
@@ -164,7 +167,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				try {
 					r.defineCommand(name, opts.commands[name]);
 				} catch (error) {
-					console.log(error.stack || error);
+					process._rawDebug(error.stack || error);
 				}
 			});
 		}

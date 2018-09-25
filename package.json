@@ -1,0 +1,28 @@
+{
+  "name": "repl-sockets",
+  "version": "1.0.0",
+  "description": "connect to repl of app through socket",
+  "main": "repl_sockets.js",
+  "scripts": {
+    "exampleServer": "node example_server.js",
+    "exampleClient": "node example_client.js"
+  },
+  "files": [
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wentout/repl_sokets.git"
+  },
+  "keywords": [
+    "repl",
+    "repl-sockets",
+    "debug"
+  ],
+  "author": "went.out@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wentout/repl_sokets/issues"
+  },
+  "homepage": "https://github.com/wentout/repl_sokets#readme"
+}

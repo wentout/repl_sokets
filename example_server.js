@@ -32,8 +32,8 @@ const context = {
 	_it     : null
 };
 
-console.log('The REPL example server is Running!');
-console.log('Run: node example_client');
+process._rawDebug(`The REPL example server is Running on pid [ ${process.pid} ]!`);
+process._rawDebug('Run: node example_client');
 
 const SOCKET_FILE_PATH = require('path').join(process.cwd(), 'repl.sock');
 require('./repl_sockets')
