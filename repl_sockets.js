@@ -54,13 +54,11 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				
 		r.trueConsoleLog = null;
 		
-		const util = require('util');
-		
 		r.log = function () {
 			const args = Array.prototype.slice.call(arguments);
+			socket.write.call(socket, '\n');
 			args.forEach((arg) => {
-				socket.write.call(socket, util.inspect(arg));
-				socket.write.call(socket, '\n');
+				socket.write.call(socket, arg);
 			});
 		};
 		
