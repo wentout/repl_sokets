@@ -112,7 +112,7 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				// eslint-disable-next-line
 			} catch (accessError) { }
 
-			const saveHistoryAndClose = saveHistory.bind(null, null, true);
+			const saveHistoryAndClose = saveHistory.bind(null, null, true, false);
 
 			process
 				.on('SIGTERM', saveHistoryAndClose)

@@ -1,6 +1,6 @@
 {
   "name": "repl-sockets",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "connect to repl of app through socket",
   "main": "repl_sockets.js",
   "scripts": {
