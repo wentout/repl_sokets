@@ -5,22 +5,22 @@
 // https://gist.github.com/jakwings/7772580
 // https://gist.github.com/TooTallNate/2209310
 
-const net  = require('net');
+const net = require('net');
 
 const client = (SOCKET_FILE_PATH) => {
-	
+
 	const socket = net.connect(SOCKET_FILE_PATH);
-	
+
 	process.stdin.pipe(socket);
-	
+
 	/// this event won't be fired if REPL is exited by '.exit' command
 	process.stdin.on('end', () => {
 		process._rawDebug('.exit');
 		socket.destroy();
 	});
-	
+
 	socket.pipe(process.stdout);
-	
+
 	socket.on('connect', () => {
 		process._rawDebug('Connected.');
 		//process.stdin.resume();  // already in flowing mode
@@ -32,28 +32,29 @@ const client = (SOCKET_FILE_PATH) => {
 		process.exit(0);
 	};
 	socket.on('close', close);
-	
+
 };
 
 const server = function (SOCKET_FILE_PATH, opts, cb) {
-	const fs   = require('fs');
+	const fs = require('fs');
 	const repl = require('repl');
 	if (fs.existsSync(SOCKET_FILE_PATH)) {
 		fs.unlinkSync(SOCKET_FILE_PATH);
 	}
 	const historyPath = opts.historyPath;
+
 	const replServer = net.createServer((socket) => {
-		
+
 		const r = repl.start({
-			prompt    : process.pid + ' repl > ',
-			input     : socket,
-			output    : socket,
-			terminal  : !opts.terminal,
-			useGlobal : !!opts.useGlobal
+			prompt: process.pid + ' repl > ',
+			input: socket,
+			output: socket,
+			terminal: !opts.terminal,
+			useGlobal: !!opts.useGlobal
 		});
-				
+
 		r.trueConsoleLog = null;
-		
+
 		r.log = function () {
 			const args = Array.prototype.slice.call(arguments);
 			socket.write.call(socket, '\n');
@@ -61,17 +62,17 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				socket.write.call(socket, arg);
 			});
 		};
-		
+
 		const consoleInit = () => {
 			const consoleLog = process._rawDebug;
 			r.trueConsoleLog = consoleLog;
 			process._rawDebug = r.log;
 		};
-		
+
 		if (historyPath) {
-			
+
 			let fd = fs.openSync(historyPath, 'a');
-			
+
 			// we use var here to rid of blok scoping limits
 			var saveHistory = (code, toCloseFd, clear) => {
 				// !!! if we will use >>>
@@ -80,20 +81,20 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				// so we will not use this
 				if (code) {
 					// DEP0013 rid
-					fs.writeSync(fd, code + '\n', () => {});
+					fs.writeSync(fd, code + '\n', () => { });
 				}
 				if (toCloseFd || clear) {
 					try {
 						fs.closeSync(fd);
-					// eslint-disable-next-line
-					} catch (err) {}
+						// eslint-disable-next-line
+					} catch (err) { }
 				}
 				if (clear) {
 					fs.unlinkSync(historyPath);
 					fd = fs.openSync(historyPath, 'a');
 				}
 			};
-			
+
 			try {
 				fs.accessSync(historyPath);
 				// !!! if we will use >>>
@@ -108,24 +109,25 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				r.rli.history.shift();
 				// will be incremented before pop
 				r.rli.historyIndex = -1;
-			// eslint-disable-next-line
-			} catch (accessError) {}
-			
+				// eslint-disable-next-line
+			} catch (accessError) { }
+
 			const saveHistoryAndClose = saveHistory.bind(null, null, true);
+
 			process
-				.on('SIGTERM'          , saveHistoryAndClose)
-				.on('SIGINT'           , saveHistoryAndClose)
-				.on('uncaughtException', saveHistoryAndClose);
-			
+				.on('SIGTERM', saveHistoryAndClose)
+				.on('SIGINT', saveHistoryAndClose)
+				.on('exit', saveHistoryAndClose);
+
 			r.rli.addListener('line', (line) => {
 				if (line !== '.hclear') {
 					saveHistory(line);
 				}
 			});
-			
+
 			r.defineCommand('hclear', {
-				help : 'to get rid of history',
-				action : () => {
+				help: 'to get rid of history',
+				action: () => {
 					r.rli.history = [];
 					r.rli.historyIndex = -1;
 					saveHistory(null, true, true);
@@ -133,16 +135,16 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				}
 			});
 		}
-		
+
 		const checkAndInitConsole = () => {
-			if (! r.trueConsoleLog) {
+			if (!r.trueConsoleLog) {
 				consoleInit();
 			}
 		};
-		
+
 		socket.on('data', checkAndInitConsole);
 		r.rli.addListener('line', checkAndInitConsole);
-		
+
 		r.on('exit', () => {
 			if (typeof saveHistory == 'function') {
 				saveHistory(null, true);
@@ -153,13 +155,13 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 			}
 			socket.end();
 		});
-		
+
 		if (opts.context) {
 			Object.keys(opts.context).forEach((name) => {
 				r.context[name] = opts.context[name];
 			});
 		}
-		
+
 		if (opts.commands) {
 			Object.keys(opts.commands).forEach((name) => {
 				try {
@@ -169,17 +171,18 @@ const server = function (SOCKET_FILE_PATH, opts, cb) {
 				}
 			});
 		}
-		
+
 		if (typeof cb == 'function') {
 			cb(socket, r);
 		}
-		
+
 	});
-	replServer.listen(SOCKET_FILE_PATH);
 	
+	replServer.listen(SOCKET_FILE_PATH);
+
 };
 
 module.exports = {
-	client : client,
-	server : server
+	client: client,
+	server: server
 };
